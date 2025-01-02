@@ -4,6 +4,7 @@
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <title>PDF Tables to CSV</title>
     <style>
@@ -14,7 +15,7 @@
 </head>
 
 <body style="background-color:#e3f2fd;">
-
+<div class="content">
     <div class="logo-title-container">
         <a href="https://github.com/kdash1"><img class="gitProfile" src="https://avatars.githubusercontent.com/u/52130494?v=4" alt="GitHub Profile"
             ></a>
@@ -51,12 +52,13 @@
     <textarea id="csv-result" style="width: 100%;background-color: #edf2fb; height: 150px;resize: vertical;border-radius: 7px ; min-height: 150px;"></textarea>
 </div>
 
-    <div style="text-align: center;">
-        <br>
-        <button class="custom-button" onclick="dowloadasCSV()">
-            Click to Download as CSV📥
-        </button>
-    </div>
+<div style="text-align: center;">
+    <br>
+    <button class="custom-button" onclick="dowloadasCSV()">
+        Click to Download as CSV📥
+    </button>
+</div>
+</div>
 
     <script src="build/pdf.js"></script>
     <script src="pdf-table-extractor.js"></script>
