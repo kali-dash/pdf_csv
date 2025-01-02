@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <title>PDF Tables to CSV</title>
+    <style>
+        td {
+            white-space: pre;
+        }
+    </style>
+</head>
+
+<body style="background-color:#e3f2fd;">
+
+    <div class="logo-title-container">
+        <a href="https://github.com/kdash1"><img class="gitProfile" src="https://avatars.githubusercontent.com/u/52130494?v=4" alt="GitHub Profile"
+            ></a>
+        <h1 style="text-align: center;">PDF Tables to CSV</h1>
+        </div>
+    <p class="text">Convert PDFs to Editable CSV file... Happy day!</p>
+    <div class="dropbox">
+        <div id="drop">
+            <br>
+            <br>
+            <span>Drop PDF file here📄</span>
+        </div>
+        <br>
+        <label for="pdf-file" class="custom-file-upload">
+            Select a PDF File📄
+          </label>
+          <input type="file" id="pdf-file" />
+          
+        <br>
+    </div>
+    <br><br>
+<div style="display: none;">
+    <h2 class="json">JSON</h2>
+    <textarea id="json-result" style="width: 100%; height: 200px;resize: vertical;"></textarea>
+</div>
+
+<div>
+    <h2>CSV OUTPUT</h2>
+    <select id="csv-select" class="dropdown"></select>
+    <button class="copy-button" onclick="copytoClipboard()">Copy
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 115.77 122.88" 
+        style="enable-background:new 0 0 115.77 122.88" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><path class="st0" d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"/></g></svg>
+    </button>
+    <textarea id="csv-result" style="width: 100%;background-color: #edf2fb; height: 150px;resize: vertical;border-radius: 7px ; min-height: 150px;"></textarea>
+</div>
+
+    <div style="text-align: center;">
+        <br>
+        <button class="custom-button" onclick="dowloadasCSV()">
+            Click to Download as CSV📥
+        </button>
+    </div>
+
+    <script src="build/pdf.js"></script>
+    <script src="pdf-table-extractor.js"></script>
+    <script id="script">
+        let outVal;
+        var drop = document.getElementById('drop');
+        function handleDrop(e) {
+            $('#json-result').text('Transfering file...');
+            e.stopPropagation();
+            e.preventDefault();
+            var files = e.dataTransfer.files;
+            var f = files[0];
+            {
+                var reader = new FileReader();
+                var name = f.name;
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    $('#json-result').text('Parsing PDF...');
+                    parse_content(data); //btoa(arr));
+                };
+                reader.readAsArrayBuffer(f);
+            }
+        }
+
+        function handleFile(e) {
+            $('#json-result').text('Transfering file...');
+            var files = e.target.files;
+            var f = files[0];
+            {
+                var reader = new FileReader();
+                var name = f.name;
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    $('#json-result').text('Parsing PDF...');
+                    parse_content(data); //btoa(arr));
+                };
+                reader.readAsArrayBuffer(f);
+            }
+        }
+        document.getElementById('pdf-file').addEventListener('change', handleFile, false);
+
+
+        function handleDragover(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        if (drop.addEventListener) {
+            drop.addEventListener('dragenter', handleDragover, false);
+            drop.addEventListener('dragover', handleDragover, false);
+            drop.addEventListener('drop', handleDrop, false);
+        }
+
+
+        var array_to_csv = function (tables) {
+            return tables.map(function (rows) {
+                return rows.map(function (v) {
+                    if ('undefined' === typeof (v) || v === null) {
+                        return v;
+                    }
+                    if (v.indexOf('"')) {
+                        v = v.replace(/"/g, '""');
+                    }
+                    if (v.indexOf('"') >= 0 || v.indexOf("\n") >= 0 || v.indexOf(",") >= 0) {
+                        v = '"' + v + '"';
+                    }
+                    return v;
+                }).join(',');
+            }).join("\n");
+        };
+        $('#csv-select').change(function () {
+            $('#csv-result').val(array_to_csv($('#csv-select option:selected').data('data').tables));
+        });
+
+        pdf_table_extractor_progress = function (result) {
+            $('#json-result').text("Parsing PDF, progress: " + result.currentPages + " / " + result.numPages + " pages");
+        };
+
+        var parse_content = function (content) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'build/pdf.worker.js';
+            pdfjsLib.cMapUrl = 'https://mozilla.github.io/pdf.js/web/cmaps/';
+            pdfjsLib.cMapPacked = true;
+
+            var loadingTask = pdfjsLib.getDocument(content);
+
+            loadingTask.promise.then(pdf_table_extractor).then(function (result) {
+                // JSON output
+                document.getElementById('json-result').innerText = JSON.stringify(result);
+                // CSV output
+                $('#csv-select').html('');
+
+                var all_tables = [];
+                while (page_tables = result.pageTables.shift()) {
+                    $('#csv-select').append($('<option></option>').text('Page ' + page_tables.page).data('data', page_tables));
+                    if ($('input:checkbox[name="merge-table-remove-first-line"]').is(':checked') && page_tables.page > 1) {
+                        all_tables = all_tables.concat(page_tables.tables.slice(1));
+                    } else {
+                        all_tables = all_tables.concat(page_tables.tables);
+                    }
+                };
+                $('#csv-select').append($('<option></option>').text('All').data('data', { 'tables': all_tables }));
+                $('#csv-select').change();
+            });;
+        };
+        function copytoClipboard(){
+            //console.log(tables)
+            const textbox = document.getElementById('csv-result');
+            textbox.select();
+            try{
+                navigator.clipboard.writeText(textbox.value);
+                outVal = textbox.value;
+            }catch(err){
+                alert('Copy failed!',err)
+            }
+        }
+        function dowloadasCSV(){
+            const select = document.getElementById('csv-select');
+            let selectedIndex = select.selectedIndex;
+            //console.log(selectedIndex);
+            select.selectedIndex = select.length-1;
+            $('#csv-select').change();
+            copytoClipboard();
+            console.log(outVal);
+            const blob = new Blob([outVal], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'output.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            select.selectedIndex = selectedIndex;
+            $('#csv-select').change();
+        }
+    </script>
